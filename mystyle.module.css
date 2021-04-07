@@ -1,0 +1,51 @@
+
+body {
+  font-family: Segoe UI;
+  background-color: white}
+
+h1 {
+  text-align: center;
+}
+
+label {
+  display: inline-block;
+  width: 100px;
+}
+
+div {
+  margin-bottom: 20px;
+}
+
+/* Full-width input fields */
+input[type=text], input[type=password] {
+  width: 30%;
+  padding: 12px 20px;
+  margin: 0 auto;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+
+form {
+  border: 1px solid #ccc;
+  margin-top: 100px;
+  border-radius: 5px;
+  background-color: #F2EFE9;
+  padding: 30px;
+  text-align: center;
+
+}
+
+
+button {
+background-color: #4F5D75;
+width: 8%;
+color: white;
+padding: 14px 14px;
+border: none;
+cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.8;
+}
