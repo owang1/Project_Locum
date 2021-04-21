@@ -13,7 +13,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Welcome</title>
+    <title>Choose Account Type</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body{ font: 14px sans-serif; text-align: center; }
@@ -88,6 +88,18 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     overflow: scroll;
     width: fit-content;
 }
+
+.employ-button{
+  background-color: #E0E0E0;
+  margin: 20px;
+  width: 400px;
+  height: 100px;
+  text-align: center;
+  line-height: 75px;
+  font-size: 25px;
+  font-weight: bold;
+  box-shadow: 0px 11px 15px -8px #000000;
+}
     </style>
 </head>
 <body>
@@ -100,52 +112,12 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
   <h3 class="greeting"> Hi, <b><?php echo htmlspecialchars($_SESSION["email"]); ?></b> </h3>
   <a href="logout.php" class="sign-out btn ml-3">Sign Out of Your Account</a>
   <a href="reset-password.php" class="reset btn">Reset Your Password</a>
+</div>
+<h2> Choose your account type </h1>
 
-</div>
-<div>
-<h2 class="my-5">Browse Candidates</h2>
-<div class="card-list">
-    <div class="card">
-    <h5 class="card-header">Resume #1</h5>
-    <div class="card-body">
-        <h5 class="card-title">John Doe</h5>
-        <p class="card-text">A quick summary of interests, experience, etc.</p>
-        <a href="#" class="btn btn-primary">View</a>
-    </div>
-    </div>
-    <div class="card">
-    <h5 class="card-header">Resume #2</h5>
-    <div class="card-body">
-        <h5 class="card-title">Jane Doe</h5>
-        <p class="card-text">A quick summary of interests, experience, etc.</p>
-        <a href="#" class="btn btn-primary">View</a>
-    </div>
-    </div>
-    <div class="card">
-    <h5 class="card-header">Resume #3</h5>
-    <div class="card-body">
-        <h5 class="card-title">John Doe</h5>
-        <p class="card-text">A quick summary of interests, experience, etc.</p>
-        <a href="#" class="btn btn-primary">View</a>
-    </div>
-    </div>
-    <div class="card">
-    <h5 class="card-header">Resume #4</h5>
-    <div class="card-body">
-        <h5 class="card-title">John Doe</h5>
-        <p class="card-text">A quick summary of interests, experience, etc.</p>
-        <a href="#" class="btn btn-primary">View</a>
-    </div>
-    </div>
-    <div class="card">
-    <h5 class="card-header">Resume #5</h5>
-    <div class="card-body">
-        <h5 class="card-title">Jane Doe</h5>
-        <p class="card-text">A quick summary of interests, experience, etc.</p>
-        <a href="#" class="btn btn-primary">View</a>
-    </div>
-    </div>
-</div>
+    <a href="#" class="btn employ-button">Employer</a>
+    <a href="#" class="btn employ-button">Employee</a>
+
 </div>
 
 </body>

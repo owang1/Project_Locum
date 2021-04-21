@@ -1,7 +1,6 @@
 <?php
 // Initialize the session
 session_start();
-
 // Check if the user is logged in, otherwise redirect to login page
 if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     header("location: login.php");
@@ -41,19 +40,24 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     if(empty($new_password_err) && empty($confirm_password_err)){
         // Prepare an update statement
         //$sql = "UPDATE users SET password = ? WHERE id = ?";
-        $sql = "UPDATE people SET password = ? WHERE id = ?";
+        $sql = "UPDATE people SET password = ? WHERE email = ?";
 
         if($stmt = mysqli_prepare($link, $sql)){
             // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "si", $param_password, $param_id);
-
+            //mysqli_stmt_bind_param($stmt, "si", $param_password, $param_id);
+            mysqli_stmt_bind_param($stmt, "ss", $param_password, $param_email);
+            echo "here 1";
             // Set parameters
             $param_password = crypt($new_password, PASSWORD_DEFAULT);
-            $param_id = $_SESSION["id"];
+            $param_email = $_SESSION["email"];
+            //$param_id = $_SESSION["id"];
+            echo "here 2";
 
             // Attempt to execute the prepared statement
             if(mysqli_stmt_execute($stmt)){
                 // Password updated successfully. Destroy the session, and redirect to login page
+                echo "here 3";
+
                 session_destroy();
                 header("location: login.php");
                 exit();
@@ -76,17 +80,19 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 <head>
     <meta charset="UTF-8">
     <title>Reset Password</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="mystyle.module.css">
     <style>
         body{ font: 14px sans-serif; }
         .wrapper{ width: 350px; padding: 20px; }
+        .reset-password-wrapper{  margin: auto; margin-top: 100px; }
+        .reset-password-group{ -webkit-box-shadow: 0px 11px 15px -8px #000000;
+        box-shadow: 0px 11px 15px -8px #000000;}
     </style>
 </head>
 <body>
-    <div class="wrapper">
-        <h2>Reset Password</h2>
-        <p>Please fill out this form to reset your password.</p>
+    <div class="wrapper reset-password-wrapper">
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+          <h1>Reset Password</h1>
             <div class="form-group">
                 <label>New Password</label>
                 <input type="password" name="new_password" class="form-control <?php echo (!empty($new_password_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $new_password; ?>">
@@ -98,7 +104,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 <span class="invalid-feedback"><?php echo $confirm_password_err; ?></span>
             </div>
             <div class="form-group">
-                <input type="submit" class="btn btn-primary" value="Submit">
+                <input type="submit" class="btn btn-primary" style = "background-color: #4F5D75; color:white;" value="Submit">
                 <a class="btn btn-link ml-2" href="welcome.php">Cancel</a>
             </div>
         </form>
