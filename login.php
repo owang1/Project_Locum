@@ -122,7 +122,7 @@ box-shadow: 0px 11px 15px -8px #000000;}
           <h1>Login</h1>
 
             <div class="form-group">
-                <label>email</label>
+                <label>Email</label>
                 <input type="text" name="email" class="form-control <?php echo (!empty($email_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $email; ?>">
                 <span class="invalid-feedback"><?php echo $email_err; ?></span>
             </div>
