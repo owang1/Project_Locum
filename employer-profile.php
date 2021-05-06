@@ -7,6 +7,119 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     header("location: login.php");
     exit;
 }
+
+// Include config file
+require_once "config.php";
+$name = $phonenumber = "";
+
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+  $phonenumber = $_POST['phone'];
+  if (empty($phonenumber)) {
+      echo "Phone number is empty";
+  }else if(strlen($phonenumber)!=10 || !(is_numeric($phonenumber))){
+     echo "Enter 10 digit phone number";
+  }
+  else {
+      echo "Phone number is";
+      echo $phonenumber;
+  }
+
+  $hospital_name = $_POST['hospital'];
+  if (empty($hospital_name)) {
+      echo "Name is empty";
+  } else {
+      echo $hospital_name;
+  }
+
+  $hospital_addr = $_POST['address'];
+  if (empty($hospital_addr)) {
+      echo "Address is empty";
+  } else {
+      echo $hospital_addr;
+  }
+
+  $hospital_city = $_POST['city'];
+  if (empty($hospital_city)) {
+      echo "City is empty";
+  } else {
+      echo $hospital_city;
+  }
+
+  $hospital_state = $_POST['state'];
+  if (empty($hospital_state)) {
+      echo "State is empty";
+  } else {
+      echo $hospital_state;
+  }
+
+  $hospital_zip = $_POST['zip'];
+  if (empty($hospital_zip)) {
+      echo "Zip is empty";
+  } else {
+      echo $hospital_zip;
+  }
+}
+
+// Update people table with entered phone number
+$sql = "UPDATE people SET phone_number = ? where email = ?";
+
+if($stmt = mysqli_prepare($link, $sql)){
+  /* bind parameters for markers */
+  mysqli_stmt_bind_param($stmt, "ss", $param_phone, $param_email);
+  $param_phone = $phonenumber;
+  $param_email = $_SESSION["email"];
+  echo "updating people with phone number";
+
+  /* execute query */
+  mysqli_stmt_execute($stmt);
+  mysqli_stmt_close($stmt);
+}
+
+$temp_hosp_id = -1;
+
+// Insert to hospital table, update on duplicate value
+// Note: hosp_id autoincrements
+$sql = "INSERT INTO hospital (hosp_name, hosp_address, hosp_city, hosp_state, hosp_zipcode) VALUES( ?, ?, ?, ?, ? ) ON DUPLICATE KEY UPDATE hosp_name=VALUES(hosp_name), hosp_address=VALUES(hosp_address),  hosp_city=VALUES(hosp_city),  hosp_state=VALUES(hosp_state),  hosp_zipcode=VALUES(hosp_zipcode)";
+
+if($stmt = mysqli_prepare($link, $sql)){
+  /* bind parameters for markers */
+  mysqli_stmt_bind_param($stmt, "sssss", $param_hosp_name, $param_hosp_addr, $param_hosp_city, $param_hosp_state, $param_hosp_zip);
+  $param_hosp_name = $hospital_name;
+  $param_hosp_addr = $hospital_addr;
+  $param_hosp_city = $hospital_city;
+  $param_hosp_state = $hospital_state;
+  $param_hosp_zip = $hospital_zip;
+  echo "updating hospital table";
+
+  /* execute query */
+  mysqli_stmt_execute($stmt);
+
+  // Save the autoincremented id to insert into employers later
+  $temp_hosp_id = mysqli_insert_id($link);
+
+  mysqli_stmt_close($stmt);
+}
+
+if($temp_hosp_id != -1){
+  // Update employers table with hosp_id
+  $sql = "UPDATE employers SET hosp_id = ? where email = ?";
+  if($stmt = mysqli_prepare($link, $sql)){
+    /* bind parameters for markers */
+    mysqli_stmt_bind_param($stmt, "ss", $param_hosp_id, $param_email);
+    $param_hosp_id = $temp_hosp_id;
+    $param_email = $_SESSION["email"];
+    echo "updating employers with hosp_id";
+
+    /* execute query */
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+  }
+}
+// Close connection
+mysqli_close($link);
+
 ?>
 
 <!DOCTYPE html>
@@ -24,7 +137,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
 }
 
 /* Style the links inside the navigation bar */
-.topnav a {
+.topnav .nav-link {
   float: left;
   color: #4f5d75;
   text-align: center;
@@ -32,6 +145,29 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
   text-decoration: none;
   font-size: 17px;
   margin: 20px;
+}
+
+.navbar-brand{
+    margin: 0px;
+    font-size: x-large;
+    margin-top: -70px;
+    position: absolute;
+    height: fit-content;
+}
+
+/* .nav-link {
+    padding-right: 4rem !important;
+    padding-left: 4rem !important;
+} */
+
+.navbar{
+    box-shadow: 0px 3px 7px -5px #000000;
+}
+
+.navbar-nav{
+    justify-content: space-evenly;
+    width: 100%;
+    margin-left: -55px;
 }
 
 .btn{
@@ -60,20 +196,20 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
 }
 
 /* Change the color of links on hover */
-.topnav a:hover {
+.topnav .nav-link:hover {
   background-color: #ddd;
   color: black;
 }
 
 /* Add a color to the active/current link */
-.topnav a.active {
+.topnav .nav-link.active {
   background-color: #4f5d75;
   color: white;
 }
 
 .greeting{
-    width: 100%;
-    display: contents;
+    height: fit-content;
+    margin-top: 23px;
 }
 
 .card{
@@ -89,17 +225,6 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     width: fit-content;
 }
 
-.employ-button{
-  background-color: #E0E0E0;
-  margin: 20px;
-  width: 400px;
-  height: 100px;
-  text-align: center;
-  line-height: 75px;
-  font-size: 25px;
-  font-weight: bold;
-  box-shadow: 0px 11px 15px -8px #000000;
-}
 .circle{
     border: 1px solid #aaa;
     box-shadow: inset 1px 1px 3px #fff;
@@ -141,32 +266,33 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     </style>
 </head>
 <body>
-<div class="topnav">
-  <h3 class = "project-title"> Locum Project </h3>
-  <a href="#contact">Browse Jobs</a>
-  <a href="#contact">Messages</a>
-  <!-- <a class="active" href="#home">Home</a>
-  <a href="#news">About</a> -->
-  <h3 class="greeting"> Hi, <b><?php echo htmlspecialchars($_SESSION["email"]); ?></b> </h3>
-  <a href="logout.php" class="sign-out btn ml-3">Sign Out of Your Account</a>
-  <a href="reset-password.php" class="reset btn">Reset Your Password</a>
-</div>
+<nav class="navbar navbar-expand-lg  topnav">
+  <a class="navbar-brand" href="#">Locum</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+    <div class="navbar-nav">
+      <a class="nav-item nav-link" href="../locum_website/browse-resumes.php/">Browse Resumes <span class="sr-only">(current)</span></a>
+      <a class="nav-item nav-link" href="#">Messages</a>
+      <h3 class="nav-item nav-link greeting"> Hi, <b><?php echo htmlspecialchars($_SESSION["email"]); ?></b> </h3>
+      <a class="nav-item nav-link" href="logout.php">Logout</a>
+      <a class="nav-item nav-link " href="reset-password.php">Reset</a>
+    </div>
+  </div>
+</nav>
 
   <div class="card">
-  <h5 class="card-header">Please fill out your employee profile</h5>
+  <h5 class="card-header">Please fill out your employer profile</h5>
   <div class="card-body">
-    <form>
-     <label for="fname">First name:</label>
-     <input type="text" id="fname" name="fname" required><br>
-     <label for="lname">Last name:</label>
-     <input type="text" id="lname" name="lname" required><br>
+    <form action="" method="post">
      <label for="phone">Phone number:</label>
-     <input type="tel" id="phone" name="phone" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}" required> <br>
-     <label for="hospital">Hospital:</label>
-     <input type="text" id="hospital" name="hospital"><br>
-     <br><br>
+     <input type="text" id="phone_number" name="phone" placeholder="1112223333" required> <br><br>
+     <strong> Please fill out your Hospital Information </strong> <br>
+     <label for="hospital">Hospital:</label><br>
+     <input type="text" id="hosp" name="hospital"><br>
      <label for="address">Address:</label><br>
-     <input type="text" id="address" name="adress"><br>
+     <input type="text" id="addr" name="address"><br>
      <label for="city">City:</label><br>
      <input type="text" id="city" name="city"><br>
      <label for="state">State:</label><br>
@@ -228,6 +354,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
      <br>
      <input type="submit" class="btn btn-primary" value="Submit"><br>
      <button class="circle plus"></button>
+     <a href="post-job.php">Post a Job </a>
 
    </form>
   </div>

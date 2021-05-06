@@ -24,7 +24,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
 }
 
 /* Style the links inside the navigation bar */
-.topnav a {
+.topnav .nav-link {
   float: left;
   color: #4f5d75;
   text-align: center;
@@ -32,6 +32,29 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
   text-decoration: none;
   font-size: 17px;
   margin: 20px;
+}
+
+.navbar-brand{
+    margin: 0px;
+    font-size: x-large;
+    margin-top: -70px;
+    position: absolute;
+    height: fit-content;
+}
+
+/* .nav-link {
+    padding-right: 4rem !important;
+    padding-left: 4rem !important;
+} */
+
+.navbar{
+    box-shadow: 0px 3px 7px -5px #000000;
+}
+
+.navbar-nav{
+    justify-content: space-evenly;
+    width: 100%;
+    margin-left: -55px;
 }
 
 .btn{
@@ -60,20 +83,20 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
 }
 
 /* Change the color of links on hover */
-.topnav a:hover {
+.topnav .nav-link:hover {
   background-color: #ddd;
   color: black;
 }
 
 /* Add a color to the active/current link */
-.topnav a.active {
+.topnav .nav-link.active {
   background-color: #4f5d75;
   color: white;
 }
 
 .greeting{
-    width: 100%;
-    display: contents;
+    height: fit-content;
+    margin-top: 23px;
 }
 
 .card{
@@ -88,22 +111,39 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     overflow: scroll;
     width: fit-content;
 }
+
+.search-group{
+    margin: auto;
+    width: fit-content;
+}
+.search-group input{
+    width: 500px !important;
+}
     </style>
 </head>
 <body>
-<div class="topnav">
-  <h3 class = "project-title"> Locum Project </h3>
-  <a href="#contact">Browse Jobs</a>
-  <a href="#contact">Messages</a>
-  <!-- <a class="active" href="#home">Home</a>
-  <a href="#news">About</a> -->
-  <h3 class="greeting"> Hi, <b><?php echo htmlspecialchars($_SESSION["email"]); ?></b> </h3>
-  <a href="logout.php" class="sign-out btn ml-3">Sign Out of Your Account</a>
-  <a href="reset-password.php" class="reset btn">Reset Your Password</a>
+<nav class="navbar navbar-expand-lg  topnav">
+  <a class="navbar-brand" href="#">Locum</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+    <div class="navbar-nav">
+      <a class="nav-item nav-link" href="../browse-jobs.php/">Browse Jobs <span class="sr-only">(current)</span></a>
+      <a class="nav-item nav-link" href="#">Messages</a>
+      <h5 class="nav-item nav-link greeting"> Hi, <b><?php echo htmlspecialchars($_SESSION["email"]); ?></b> </h5>
+      <a class="nav-item nav-link" href="logout.php">Logout</a>
+      <a class="nav-item nav-link " href="reset-password.php">Reset</a>
+    </div>
+  </div>
+</nav>
 
-</div>
 <div>
 <h2 class="my-5">Browse Candidates</h2>
+<form class="form-inline my-lg-0 search-group">
+      <input class="form-control" type="search" placeholder="Search" aria-label="Search">
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+</form>
 <div class="card-list">
     <div class="card">
     <h5 class="card-header">Resume #1</h5>
@@ -147,6 +187,6 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     </div>
 </div>
 </div>
-
+    
 </body>
 </html>

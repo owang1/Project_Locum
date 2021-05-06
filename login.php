@@ -4,7 +4,8 @@ session_start();
 
 // Check if the user is already logged in, if yes then redirect him to welcome page
 if(isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true){
-    header("location: welcome.php");
+    //header("location: browse-resumes.php");
+    header("location: choose-account-type.php");
     exit;
 }
 
@@ -71,8 +72,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                             //$_SESSION["id"] = $id;
                             $_SESSION["email"] = $email;
 
-                            // Redirect user to welcome page
-                            header("location: welcome.php");
+                            // Redirect user to choose account type
+                            header("location: choose-account-type.php");
                         } else{
                             // Password is not valid, display a generic error message
                             $login_err = "Invalid email or password.";
@@ -122,7 +123,7 @@ box-shadow: 0px 11px 15px -8px #000000;}
           <h1>Login</h1>
 
             <div class="form-group">
-                <label>Email</label>
+                <label>email</label>
                 <input type="text" name="email" class="form-control <?php echo (!empty($email_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $email; ?>">
                 <span class="invalid-feedback"><?php echo $email_err; ?></span>
             </div>
