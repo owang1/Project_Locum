@@ -9,7 +9,9 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     header("location: login.php");
     exit;
 }
+$chat_id_clicked = "";
 
+// Determine the account type by querying employers and employees table
 $existing_account = "";
 
 // Check if email is already in employer
@@ -23,11 +25,11 @@ if($stmt = mysqli_prepare($link, $sql)){
 
   /* execute query */
   mysqli_stmt_execute($stmt);
-  //$result = mysqli_stmt_get_result($stmt);
   mysqli_stmt_store_result($stmt);
   // Employer doesn't have email
   if(mysqli_stmt_num_rows($stmt) > 0){
     $existing_account = "employer";
+    $_SESSION["account_type"] = "employer";
   }
 
   //mysqli_stmt_execute($stmt);
@@ -45,103 +47,56 @@ if($stmt = mysqli_prepare($link, $sql)){
 
   /* execute query */
   mysqli_stmt_execute($stmt);
-  //$result = mysqli_stmt_get_result($stmt);
   mysqli_stmt_store_result($stmt);
 
   // Employer doesn't have email
   if(mysqli_stmt_num_rows($stmt) > 0){
     $existing_account = "employee";
+    $_SESSION["account_type"] = "employee";
   }
 
   mysqli_stmt_close($stmt);
 
 }
+// Find employees who the user (employer) is chatting with
 
 
+if($existing_account == "employee"){
+  $sql = "SELECT chat.employer, chat.id from chat where chat.employee = ?";
+}elseif ($existing_account == "employer"){
+  $sql = "SELECT chat.employee, chat.id from chat where chat.employer = ?";
+}
 
-$account_type = "";
+// Update people table with entered phone number
 
-// Set account type from button
+if($stmt = mysqli_prepare($link, $sql)){
+  /* bind parameters for markers */
+  $param_email = $_SESSION["email"];
+  //echo $param_email;
+  $var = mysqli_stmt_bind_param($stmt, "s", $param_email);
+
+  /* execute query */
+  mysqli_stmt_execute($stmt);
+
+  $result = mysqli_stmt_get_result($stmt);
+
+  mysqli_stmt_close($stmt);
+
+}
+
 if (isset($_POST["btn"])){
-  $account_type = $_POST['btn'];
+  echo "chat id = ";
+
+  $chat_id_clicked = $_POST['btn'];
+  $_SESSION["chat_id"] = $chat_id_clicked;
+  echo $_SESSION["chat_id"];
+  header("location: http://db.cse.nd.edu/cse30246/locum/locum_website/chat.php/");
+
 }
-
-echo $account_type;
-
-if($account_type == "employer" && $existing_account != "employee"){
-  if($existing_account == ""){
-
-  $_SESSION["account_type"] = $account_type;
-
-  // Add entry to employer table
-  $sql = "INSERT INTO employers (email) VALUES (?)";
-  if($stmt = mysqli_prepare($link, $sql)){
-
-  /* bind parameters for markers */
-  mysqli_stmt_bind_param($stmt, "s", $_SESSION["email"]);
-
-  /* execute query */
-  mysqli_stmt_execute($stmt);
-  if(mysqli_stmt_execute($stmt)){
-      // Redirect to employer-profile page to fill out form
-      header("location: employer-profile.php");
-  } else{
-      echo "Oops! Something went wrong. Please try again later.";
-      header("location: employer-profile.php");
-
-  }
-  /* close statement */
-  mysqli_stmt_close($stmt);
-  }
-  }
-  echo "don't make new insert";
-  header("location: employer-profile.php");
-
+// Closing connection
 mysqli_close($link);
-}
 
-else if($account_type == "employee"  && $existing_account != "employer"){
-  if($existing_account == ""){
-  $_SESSION["account_type"] = $account_type;
 
-  // Add entry to employee table
-  $sql = "INSERT INTO employees (email) VALUES (?)";
-  if($stmt = mysqli_prepare($link, $sql)){
-
-  /* bind parameters for markers */
-  mysqli_stmt_bind_param($stmt, "s", $_SESSION["email"]);
-
-  /* execute query */
-  mysqli_stmt_execute($stmt);
-
-  /* close statement */
-  mysqli_stmt_close($stmt);
-  }
-  // Also create a new entry in cv table
-  $sql = "INSERT INTO cv (email) VALUES (?)";
-  if($stmt = mysqli_prepare($link, $sql)){
-
-  /* bind parameters for markers */
-  mysqli_stmt_bind_param($stmt, "s", $_SESSION["email"]);
-
-  /* execute query */
-  if(mysqli_stmt_execute($stmt)){
-      // Redirect to employee-profile page to fill out form
-      header("location: employee-profile.php");
-  } else{
-      echo "Oops! Something went wrong. Please try again later.";
-      header("location: employee-profile.php");
-
-  }
-  /* close statement */
-  mysqli_stmt_close($stmt);
-  }
-}
-  header("location: employee-profile.php");
-
-  mysqli_close($link);
-
-}
 
 ?>
 
@@ -149,7 +104,7 @@ else if($account_type == "employee"  && $existing_account != "employer"){
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Choose Account Type</title>
+    <title>Messages</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body{ font: 14px sans-serif; text-align: center; }
@@ -213,8 +168,8 @@ else if($account_type == "employee"  && $existing_account != "employer"){
 }
 
 .card{
-    margin: 20px;
-    width: 650px;
+    margin: 0px;
+    width: 80%;
     text-align: left;
 }
 
@@ -223,18 +178,6 @@ else if($account_type == "employee"  && $existing_account != "employer"){
     height: 90vh;
     overflow: scroll;
     width: fit-content;
-}
-
-.employ-button{
-  background-color: #E0E0E0;
-  margin: 20px;
-  width: 400px;
-  height: 100px;
-  text-align: center;
-  line-height: 75px;
-  font-size: 25px;
-  font-weight: bold;
-  box-shadow: 0px 11px 15px -8px #000000;
 }
     </style>
 </head>
@@ -246,19 +189,45 @@ else if($account_type == "employee"  && $existing_account != "employer"){
   </button>
   <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
     <div class="navbar-nav">
-      <a class="nav-item nav-link" href="http://db.cse.nd.edu/cse30246/locum/locum_website/messages.php/">Messages</a>
+      <?php
+      if($_SESSION["account_type"] == "employer") {
+        echo "<a class='nav-item nav-link' href='http://db.cse.nd.edu/cse30246/locum/locum_website/browse-resumes.php/'>Browse Resumes <span class='sr-only'>(current)</span></a>";
+      }else{
+        echo "<a class='nav-item nav-link' href='http://db.cse.nd.edu/cse30246/locum/locum_website/browse-jobs.php/'>Browse Jobs <span class='sr-only'>(current)</span></a>";
+      }
+      ?>
+      <a class="nav-item nav-link" href="#">Messages</a>
       <h3 class="nav-item nav-link greeting"> Hi, <b><?php echo htmlspecialchars($_SESSION["email"]); ?></b> </h3>
-      <a class="nav-item nav-link" href="http://db.cse.nd.edu/cse30246/locum/locum_website/notifications.php">Notifications</a>
       <a class="nav-item nav-link" href="http://db.cse.nd.edu/cse30246/locum/locum_website/logout.php">Logout</a>
       <a class="nav-item nav-link " href="http://db.cse.nd.edu/cse30246/locum/locum_website/reset-password.php">Reset</a>
     </div>
   </div>
 </nav>
-<h2> Choose your account type </h1>
-<form action=""  method="post">
-    <input type="submit" class="btn employ-button" name="btn" value="employer">
-    <input type="submit" class="btn employ-button" name="btn" value="employee">
-</form>
+<h2> Inbox </h1>
+ <form action='#'  method='post'>
+  <?php while($row = mysqli_fetch_array($result)) { // MYSQLI was missing an I here and on line 32
+      // PHP to display HTML card elements
+        if($existing_account == "employee"){
+
+        echo "  <div class='card'>
+                <div class='card-body'>
+                  <h5 class='card-title'>$row[employer]</h5>
+                  <button name='btn' class = 'btn btn-primary' type='submit' value=$row[id]>Message</button>
+          </div>
+          </div>";
+
+      } elseif($existing_account == "employer"){
+      echo "  <div class='card'>
+              <div class='card-body'>
+                <h5 class='card-title'>$row[employee]</h5>
+                <button name='btn' class = 'btn btn-primary' type='submit' value=$row[id]>Message</button>
+        </div>
+        </div>";
+      }
+
+  }?>
+  </form>
+
 </div>
 
 </body>

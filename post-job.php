@@ -10,136 +10,52 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
 
 // Include config file
 require_once "config.php";
-//$specialty = $location = $job_desc = $experience = $salary = $education_benefits = $vacation = $in_out_patient = $date_posted = "";
-$specialty = $location = $job_desc = $experience = $salary = $education_benefits = $vacation = $in_out_patient = $call = $date_posted = $duration = $start_date = $shifts = $supervision = "";
+$specialty = $job_desc = $experience = $salary = $vacation = $call = $date_posted = $duration = $start_date = $supervision = "";
 
 // Set variables from form input
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // collect value of input fields from form
     $specialty = $_POST['specialty'];
-    if (empty($specialty)) {
-        echo "Specialty is empty";
-    } else {
-        echo $specialty;
-    }
-
-    $location = $_POST['location'];
-    if (empty($location)) {
-        echo "Location is empty";
-    } else {
-        echo $location;
-    }
 
     $job_desc = $_POST['jobDescription'];
-    if (empty($job_desc)) {
-        echo "Job Description is empty";
-    } else {
-        echo $job_desc;
-    }
 
     $experience = $_POST['experience'];
-    if (empty($experience)) {
-        echo "Experience is empty";
-    } else {
-        echo $experience;
-    }
 
     $salary = $_POST['salary'];
-    if (empty($salary)) {
-        echo "Salary is empty";
-    } else {
-        echo $salary;
-    }
-
-    $education_benefits = $_POST['educationBenefits'];
-    if (empty($education_benefits)) {
-        echo "Education benefits is empty";
-    } else {
-        echo $education_benefits;
-    }
 
     $vacation = $_POST['vacation'];
-    if (empty($vacation)) {
-        echo "Vacation  is empty";
-    } else {
-        echo $vacation;
-    }
-
-    $in_out_patient = $_POST['inOutPatient'];
-    if (empty($in_out_patient)) {
-        echo "In/out patient is empty";
-    } else {
-        echo $in_out_patient;
-    }
 
     $call = $_POST['callNoCall'];
-    if (empty($call)) {
-        echo "Call/nocall is empty";
-    } else {
-        echo $call;
-    }
 
     $date_posted = $_POST['datePosted'];
-    if (empty($date_posted)) {
-        echo "Date posted is empty";
-    } else {
-        echo $date_posted;
-    }
 
     $duration = $_POST['duration'];
-    if (empty($duration)) {
-        echo "Duration is empty";
-    } else {
-        echo $duration;
-    }
 
     $start_date = $_POST['startDate'];
-    if (empty($start_date)) {
-        echo "Start date is empty";
-    } else {
-        echo $start_date;
-    }
 
-    $shifts = $_POST['shifts'];
-    if (empty($shifts)) {
-        echo "Shifts is empty";
-    } else {
-        echo $shifts;
-    }
 
     $supervision = $_POST['supervision'];
-    if (empty($supervision)) {
-        echo "Supervision is empty";
-    } else {
-        echo $supervision;
-    }
+
 }
 
 // Insert into job_posts table
-$sql = "INSERT INTO job_posts (specialty, location, job_desc, experience, salary, education_benefits, vacation, inpatient_or_outpatient, call_nocall, date_posted, duration, start_date, shifts, supervision, employer_email) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-//$sql = "INSERT INTO job_posts (specialty, location, job_desc, experience, salary, education_benefits, vacation, inpatient_or_outpatient) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+$sql = "INSERT INTO job_posts (specialty, job_desc, experience, salary, vacation, call_nocall, date_posted, duration, start_date, supervision, employer_email) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 if($stmt = mysqli_prepare($link, $sql)){
   /* bind parameters for markers */
-  mysqli_stmt_bind_param($stmt, "sssssssssssssss", $param_specialty, $param_location, $param_job_desc, $param_experience, $param_salary, $param_education_benefits, $param_vacation, $param_in_out_patient, $param_call, $param_date_posted, $param_duration, $param_start_date, $param_shifts, $param_supervision, $param_email);
-  //mysqli_stmt_bind_param($stmt, "ssssisss", $param_specialty, $param_location, $param_job_desc, $param_experience, $param_salary, $param_education_benefits, $param_vacation, $param_in_out_patient);
+  mysqli_stmt_bind_param($stmt, "sssssssssss", $param_specialty, $param_job_desc, $param_experience, $param_salary, $param_vacation, $param_call, $param_date_posted, $param_duration, $param_start_date, $param_supervision, $param_email);
 
   $param_specialty = $specialty;
-  $param_location = $location;
   $param_job_desc = $job_desc;
   $param_experience = $experience;
   $param_salary = $salary;
-  $param_education_benefits = $education_benefits;
   $param_vacation = $vacation;
-  $param_in_out_patient = $in_out_patient;
   $param_call = $call;
   $param_date_posted = $date_posted;
   $param_duration = $duration;
   $param_start_date = $start_date;
-  $param_shifts = $shifts;
   $param_supervision = $supervision;
   $param_email = $_SESSION["email"];
-  echo "updating job posts table";
 
   /* execute query */
   mysqli_stmt_execute($stmt);
@@ -232,16 +148,22 @@ if($stmt = mysqli_prepare($link, $sql)){
     </style>
 </head>
 <body>
-<div class="topnav">
-  <h3 class = "project-title"> Locum Project </h3>
-  <a href="#contact">Browse Jobs</a>
-  <a href="#contact">Messages</a>
-  <!-- <a class="active" href="#home">Home</a>
-  <a href="#news">About</a> -->
-  <h3 class="greeting"> Hi, <b><?php echo htmlspecialchars($_SESSION["email"]); ?></b> </h3>
-  <a href="logout.php" class="sign-out btn ml-3">Sign Out of Your Account</a>
-  <a href="reset-password.php" class="reset btn">Reset Your Password</a>
-</div>
+<nav class="navbar navbar-expand-lg  topnav">
+  <a class="navbar-brand" href="http://db.cse.nd.edu/cse30246/locum/locum_website/welcome.php">Locum</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+    <div class="navbar-nav">
+      <a class="nav-item nav-link" href="../locum_website/browse-resumes.php/">Browse Resumes <span class="sr-only">(current)</span></a>
+      <a class="nav-item nav-link" href="http://db.cse.nd.edu/cse30246/locum/locum_website/messages.php/">Messages</a>
+      <h3 class="nav-item nav-link greeting"> Hi, <b><?php echo htmlspecialchars($_SESSION["email"]); ?></b> </h3>
+      <a class="nav-item nav-link" href="http://db.cse.nd.edu/cse30246/locum/locum_website/notifications.php">Notifications</a>
+      <a class="nav-item nav-link" href="http://db.cse.nd.edu/cse30246/locum/locum_website/logout.php">Logout</a>
+      <a class="nav-item nav-link " href="http://db.cse.nd.edu/cse30246/locum/locum_website/reset-password.php">Reset</a>
+    </div>
+  </div>
+</nav>
 
   <div class="card">
   <h5 class="card-header">Post a job</h5>
@@ -250,32 +172,17 @@ if($stmt = mysqli_prepare($link, $sql)){
      <label for="specialty">Specialty:</label>
      <input type="text" id="spec" name="specialty"><br>
 
-     <label for="location">Location:</label>
-     <input type="text" id="locat" name="location"><br>
-
      <label for="experience">Experience:</label>
      <input type="text" id="exp" name="experience"><br>
 
      <label for="salary">Salary (yearly):</label>
      <input type="number" id="sal" name="salary" min="0" step="1000" required><br>
 
-     <label for="educationBenefits">Education Benefits:</label>
-     <input type="text" id="edu_benefits" name="educationBenefits"><br>
-
      <label for="vacation">Vacation:</label>
      <input type="text" id="vac" name="vacation"><br>
 
-     <label for="shifts">Shifts:</label>
-     <input type="text" id="shift" name="shifts"><br>
-
      <label for="supervision">Supervision:</label>
      <input type="text" id="supervis" name="supervision"><br>
-
-     <label for="inOutPatient">Inpatient or Outpatient:</label>
-     <select name="inOutPatient" id="in_out_patient">
-       <option value="Inpatient">Inpatient</option>
-       <option value="Outpatient">Outpatient</option>
-     </select><br>
 
      <label for="callNoCall">Call or No Call:</label>
      <select name="callNoCall" id="call_no_call">

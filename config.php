@@ -11,8 +11,9 @@ server with default setting (user 'root' with no password) */
 
 $link = mysqli_connect('localhost', 'jgarci22', 'jgarci22', 'jgarci22')
     or die('Could not connect: ' . mysql_error());
-echo 'Connected successfully';
+//echo 'Connected successfully';
 mysqli_select_db($link, 'jgarci22') or die('Could not select database');
+error_reporting(0);
 
 
 // Check connection

@@ -10,77 +10,102 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
 
 // Include config file
 require_once "config.php";
-$name = $phonenumber = $employee_desc = $education = "";
 
-$phonenumber = mysqli_real_escape_string($link, $_REQUEST['phone_number']);
+error_reporting(0);
+$name = $phonenumber = $employee_desc = $education = "";
+$isEmpty = true;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // collect value of input fields from form
     $name = $_POST['fullName'];
+
     if (empty($name)) {
-        echo "Name is empty";
-    } else {
-        echo $name;
+        echo "Phone number is empty";
+    }
+    else {
+        $isEmpty= false;
     }
 
     $phonenumber = $_POST['phone'];
+
     if (empty($phonenumber)) {
         echo "Phone number is empty";
-    }else if(strlen($phonenumber)!=10 || !(is_numeric($phonenumber))){
-       echo "Enter 10 digit phone number";
     }
     else {
-        echo $phonenumber;
+        $isEmpty= false;
     }
 
     $employee_desc = $_POST['employeeDesc'];
+
     if (empty($employee_desc)) {
-        echo "Employee description is empty";
-    } else {
-        echo $employee_desc;
+        echo "employee descr is empty";
+    }
+    else {
+        $isEmpty= false;
     }
 
     $education = $_POST['education'];
+
     if (empty($education)) {
         echo "Education is empty";
-    } else {
-        echo $education;
     }
+    else {
+        $isEmpty= false;
+    }
+
     $education_school = $_POST['educationSchool'];
+
     if (empty($education_school)) {
-        echo "Education school is empty";
-    } else {
-        echo $education_school;
+        echo "Education is empty";
     }
+    else {
+        $isEmpty= false;
+    }
+
     $education_date = $_POST['graduationDate'];
+
     if (empty($education_date)) {
-        echo "Education date is empty";
-    } else {
-        echo $education_date;
+        echo "Edu date is empty";
     }
+    else {
+        $isEmpty= false;
+    }
+
     $cert = $_POST['certification'];
+
     if (empty($cert)) {
-        echo "Certification is empty";
-    } else {
-        echo $cert;
+        echo "Cert is empty";
     }
+    else {
+        $isEmpty= false;
+    }
+
     $cert_expr = $_POST['certificationDate'];
+
     if (empty($cert_expr)) {
-        echo "Certification date is empty";
-    } else {
-        echo $cert_expr;
+        echo "Cert expr is empty";
     }
+    else {
+        $isEmpty= false;
+    }
+
     $life_support = $_POST['lifeSupportCert'];
+
     if (empty($life_support)) {
-        echo "Life support cert is empty";
-    } else {
-        echo $life_support;
+        echo "Life support is empty";
+    }
+    else {
+        $isEmpty= false;
     }
 
 
 }
+
+if($isEmpty==false){
 // Update employees table with name
 $sql = "UPDATE employees SET name = ?, employee_desc = ? where email = ?";
+
+
 
 if($stmt = mysqli_prepare($link, $sql)){
   /* bind parameters for markers */
@@ -88,7 +113,6 @@ if($stmt = mysqli_prepare($link, $sql)){
   $param_name = $name;
   $param_desc = $employee_desc;
   $param_email = $_SESSION["email"];
-  echo "here 2";
 
   /* execute query */
   mysqli_stmt_execute($stmt);
@@ -104,7 +128,6 @@ if($stmt = mysqli_prepare($link, $sql)){
   mysqli_stmt_bind_param($stmt, "ss", $param_phone, $param_email);
   $param_phone = $phonenumber;
   $param_email = $_SESSION["email"];
-  echo "updating people with phone number";
 
   /* execute query */
   mysqli_stmt_execute($stmt);
@@ -124,7 +147,6 @@ if($stmt = mysqli_prepare($link, $sql)){
   $param_cert_expr = $cert_expr;
   $param_life_support = $life_support;
   $param_email = $_SESSION["email"];
-  echo "updating cv with education";
 
   /* execute query */
   mysqli_stmt_execute($stmt);
@@ -132,7 +154,7 @@ if($stmt = mysqli_prepare($link, $sql)){
   /* close statement */
   mysqli_stmt_close($stmt);
 }
-
+}
 // Close connection
 mysqli_close($link);
 
@@ -230,7 +252,8 @@ mysqli_close($link);
 }
 
 .card{
-    margin: 20px;
+    margin: auto;
+    margin-top: 100px;
     width: 650px;
     text-align: left;
 }
@@ -254,20 +277,40 @@ mysqli_close($link);
   box-shadow: 0px 11px 15px -8px #000000;
 }
     </style>
+<script>
+function FilterPatientListBasedOnLiveSearch(filterVal) {
+
+// Create a new array to store the Patients at multiple points
+
+filterVal = filterVal.toLowerCase();
+
+var PatientList = ["Mark", "John"]
+
+var trustArray = PatientList.map(function (patient) {
+    // return patient if search is empty or last name matches
+    if (!filterVal || patient.patientSurname.toLowerCase().indexOf(filterVal) !== -1) {
+        return "<tr id=" + patient.PatientID + "><td class='patientListNames'>" + patient.patientFirstname + " " + patient.patientSurname + "</td></tr>"
+    }
+
+});
+
+}
+</script>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg  topnav">
-  <a class="navbar-brand" href="#">Locum</a>
+  <a class="navbar-brand" href="http://db.cse.nd.edu/cse30246/locum/locum_website/welcome.php">Locum</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
   <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
     <div class="navbar-nav">
-      <a class="nav-item nav-link" href="../locum_website/browse-resumes.php/">Browse Resumes <span class="sr-only">(current)</span></a>
-      <a class="nav-item nav-link" href="#">Messages</a>
-      <h3 class="nav-item nav-link greeting"> Hi, <b><?php echo htmlspecialchars($_SESSION["email"]); ?></b> </h3>
-      <a class="nav-item nav-link" href="logout.php">Logout</a>
-      <a class="nav-item nav-link " href="reset-password.php">Reset</a>
+      <a class="nav-item nav-link" href="http://db.cse.nd.edu/cse30246/locum/locum_website/browse-jobs.php/">Browse Jobs <span class="sr-only">(current)</span></a>
+      <a class="nav-item nav-link" href="http://db.cse.nd.edu/cse30246/locum/locum_website/messages.php/">Messages</a>
+      <h5 class="nav-item nav-link greeting"> Hi, <b><?php echo htmlspecialchars($_SESSION["email"]); ?></b> </h5>
+      <a class="nav-item nav-link" href="http://db.cse.nd.edu/cse30246/locum/locum_website/notifications.php">Notifications</a>
+      <a class="nav-item nav-link" href="http://db.cse.nd.edu/cse30246/locum/locum_website/logout.php">Logout</a>
+      <a class="nav-item nav-link " href="http://db.cse.nd.edu/cse30246/locum/locum_website/reset-password.php">Reset</a>
     </div>
   </div>
 </nav>

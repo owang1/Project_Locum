@@ -48,7 +48,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             mysqli_stmt_bind_param($stmt, "ss", $param_password, $param_email);
             echo "here 1";
             // Set parameters
-            $param_password = crypt($new_password, PASSWORD_DEFAULT);
+            $param_password = crypt($new_password, "$1$asdfghjklpoi");
             $param_email = $_SESSION["email"];
             //$param_id = $_SESSION["id"];
             echo "here 2";

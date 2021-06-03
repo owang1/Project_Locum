@@ -1,56 +1,12 @@
 <?php
 // Initialize the session
 session_start();
-require_once "config.php";
 
 // Check if the user is logged in, if not then redirect him to login page
 if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     header("location: login.php");
     exit;
 }
-$isEmpty = true;
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $search_input = $_POST['search'];
-    if (empty($search_input)) {
-        // echo "Specialty is empty";
-    } else {
-        $isEmpty = false;
-        echo $search_input;
-    }
-
-}
-
-if($isEmpty == true){
-    $sql = "SELECT * FROM job_posts";
-}
-else{
-    $sql = "SELECT * FROM job_posts where job_posts.specialty = ?";
-}
-
-
-if($stmt = mysqli_prepare($link, $sql)){
-    /* bind parameters for markers */
-    $param_input = $search_input;
-    $var = mysqli_stmt_bind_param($stmt, "s", $param_input);
-
-    /* execute query */
-    mysqli_stmt_execute($stmt);
-
-    $result = mysqli_stmt_get_result($stmt);
-}
-if (isset($_POST["view"])){
-
-    $job_id_clicked = $_POST['view'];
-
-    $_SESSION["job_id"] = $job_id_clicked;
-    echo $_SESSION["job_id"];
-    header("location: http://db.cse.nd.edu/cse30246/locum/locum_website/apply.php/");
-
-  }
-
-// Closing connection
-mysqli_stmt_close($stmt);
-
 ?>
 
 <!DOCTYPE html>
@@ -58,7 +14,9 @@ mysqli_stmt_close($stmt);
 <head>
     <meta charset="UTF-8">
     <title>Welcome</title>
+
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="mystyle.module.css">
     <style>
         body{ font: 14px sans-serif; text-align: center; }
         .topnav {
@@ -86,6 +44,11 @@ mysqli_stmt_close($stmt);
     height: fit-content;
 }
 
+/* .nav-link {
+    padding-right: 4rem !important;
+    padding-left: 4rem !important;
+} */
+
 .navbar{
     box-shadow: 0px 3px 7px -5px #000000;
 }
@@ -97,9 +60,7 @@ mysqli_stmt_close($stmt);
 }
 
 .btn{
-    background-color: #4f5d75 !important;
-    color: lightblue;
-    border: none;
+    background-color: #4f5d75;
 }
 
 .sign-out{
@@ -152,28 +113,18 @@ mysqli_stmt_close($stmt);
     overflow: scroll;
     width: fit-content;
 }
-.search-group{
-    margin: auto;
-    width: fit-content;
+.full-job-info{
+  height: fit-content;
+  margin: auto;
+  margin-top: 20px;
+  background-color: #f7f7f7;
+  padding: 20px;
 }
-.search-group input{
-    width: 500px !important;
-}
-.search-button:hover{
-    background-color: #4f5d75 !important;
-    color: lightblue;
-    border: none;
+.upload_cv{
+    margin: 30px;
 }
     </style>
 </head>
-
-<script>
-const formatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-  minimumFractionDigits: 2
-})
-</script>
 <body>
 <nav class="navbar navbar-expand-lg  topnav">
   <a class="navbar-brand" href="http://db.cse.nd.edu/cse30246/locum/locum_website/welcome.php">Locum</a>
@@ -182,7 +133,8 @@ const formatter = new Intl.NumberFormat('en-US', {
   </button>
   <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
     <div class="navbar-nav">
-      <a class="nav-item nav-link" href="http://db.cse.nd.edu/cse30246/locum/locum_website/messages.php/">Messages</a>
+      <a class="nav-item nav-link" href="http://db.cse.nd.edu/cse30246/locum/locum_website/browse-resumes.php/">Browse Resumes <span class="sr-only">(current)</span></a>
+      <a class="nav-item nav-link" href="#">Messages</a>
       <h3 class="nav-item nav-link greeting"> Hi, <b><?php echo htmlspecialchars($_SESSION["email"]); ?></b> </h3>
       <a class="nav-item nav-link" href="http://db.cse.nd.edu/cse30246/locum/locum_website/notifications.php">Notifications</a>
       <a class="nav-item nav-link" href="http://db.cse.nd.edu/cse30246/locum/locum_website/logout.php">Logout</a>
@@ -191,31 +143,32 @@ const formatter = new Intl.NumberFormat('en-US', {
   </div>
 </nav>
 
-<div>
-<h2 class="my-5">Browse Jobs</h2>
-<form class="form-inline my-lg-0 search-group" action="" method="post">
-      <input class="form-control" id="searchbar" onkeyup="search_animal()" type="text"
-        name="search" placeholder="Search jobs..">
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-</form>
-<div class="card-list">
-<form action='#'  method='post'>
-<?php while($row = mysqli_fetch_array($result)) {
-    echo "<div class='card'>
-    <h5 class='card-header'>$row[specialty]</h5>
-    <div class='card-body'>
-        <h5 class='card-title'>$row[salary]</h5>
-        <p class='card-text'>$row[job_desc]</p>
-        <button name='view' value=$row[job_id] class='btn btn-primary'>View</button>
-    </div>
-    </div>";
-} ?>
-</form>
-<?php
-
-
-  ?>
+<div class="card full-job-info">
+<h5 for="jobname">Job name:</h5>
+     <p> Lorem ipsum . </p><br><hr>
+     <h5 for="qualifications">Qualifications:</h5>
+     <p> incididunt ut labore et dolore magna aliqua. </p><hr>
+    <h5 for="hospital">Hospital:</h5>
+    <p>labore et dolore magna aliqua.</p><br><hr>
+     <h5 for="deadline">Deadline:</h5>
+     <p>dolore magna aliqua. </p><br><hr>
+     <h5 for="salary-min">Minimum salary (yearly):</h5>
+     <p> aliqua. </p><br><hr>
+     <h5 for="salary-max">Maximum salary (yearly):</h5>
+     <p> aliqua. </p><br><hr>
+     <h5 for="timeframe">Time frame:</h5>
+     <p>dolore magna aliqua.</p><br><hr>
+     <h5 for="job-description">Job Description:</h5><br>
+     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. </p>
 </div>
+<div class="upload_cv">
+<form action="/action_page.php">
+<label for="myFile">Upload CV:</label>
+  <input type="file" id="myFile" name="filename">
+  <input type="submit">
+</form>
+</div>
+
 
 </body>
 </html>

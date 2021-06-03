@@ -1,12 +1,30 @@
 <?php
 // Initialize the session
 session_start();
+require_once "config.php";
+
 
 // Check if the user is logged in, if not then redirect him to login page
 if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     header("location: login.php");
     exit;
 }
+$sql = "SELECT * FROM job_posts where job_posts.job_id = ?";
+
+// $result = mysqli_query($link, $sql) or die('Query failed: ' . mysqli_error());
+
+if($stmt = mysqli_prepare($link, $sql)){
+    /* bind parameters for markers */
+    $param_input = $_SESSION["job_id"];
+    $var = mysqli_stmt_bind_param($stmt, "s", $param_input);
+
+    /* execute query */
+    mysqli_stmt_execute($stmt);
+
+    $result = mysqli_stmt_get_result($stmt);
+}
+
+mysqli_stmt_close($stmt);
 ?>
 
 <!DOCTYPE html>
@@ -14,7 +32,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
 <head>
     <meta charset="UTF-8">
     <title>Welcome</title>
-   
+
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="mystyle.module.css">
     <style>
@@ -123,51 +141,77 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
 .upload_cv{
     margin: 30px;
 }
+
+.apply-button{
+  appearance: button;
+  background-color: #4f5d75;
+  cursor: pointer;
+  color: white;
+  height: 40px;
+  width: 100px;
+  padding-top: 10px;
+}
+
+.apply-button:hover{
+  appearance: button;
+  background-color: #4f5d87;
+  cursor: pointer;
+  color: white;
+  height: 40px;
+  width: 100px;
+  padding-top: 10px;
+}
     </style>
+
+  <script>
+
+function applied() {
+  alert("Application Sent!");
+}
+
+  </script>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg  topnav">
-  <a class="navbar-brand" href="#">Locum</a>
+  <a class="navbar-brand" href="http://db.cse.nd.edu/cse30246/locum/locum_website/welcome.php">Locum</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
   <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
     <div class="navbar-nav">
-      <a class="nav-item nav-link" href="../browse-jobs.php/">Browse Resumes <span class="sr-only">(current)</span></a>
+      <a class="nav-item nav-link" href="http://db.cse.nd.edu/cse30246/locum/locum_website/browse-jobs.php/">Browse Jobs <span class="sr-only">(current)</span></a>
       <a class="nav-item nav-link" href="#">Messages</a>
       <h3 class="nav-item nav-link greeting"> Hi, <b><?php echo htmlspecialchars($_SESSION["email"]); ?></b> </h3>
-      <a class="nav-item nav-link" href="logout.php">Logout</a>
-      <a class="nav-item nav-link " href="reset-password.php">Reset</a>
+      <a class="nav-item nav-link" href="http://db.cse.nd.edu/cse30246/locum/locum_website/notifications.php">Notifications</a>
+      <a class="nav-item nav-link" href="http://db.cse.nd.edu/cse30246/locum/locum_website/logout.php">Logout</a>
+      <a class="nav-item nav-link " href="http://db.cse.nd.edu/cse30246/locum/locum_website/reset-password.php">Reset</a>
     </div>
   </div>
 </nav>
 
 <div class="card full-job-info">
-<h5 for="jobname">Job name:</h5>
-     <p> Lorem ipsum . </p><br><hr>
-     <h5 for="qualifications">Qualifications:</h5>
-     <p> incididunt ut labore et dolore magna aliqua. </p><hr>
-    <h5 for="hospital">Hospital:</h5>
-    <p>labore et dolore magna aliqua.</p><br><hr>
-     <h5 for="deadline">Deadline:</h5>
-     <p>dolore magna aliqua. </p><br><hr>
-     <h5 for="salary-min">Minimum salary (yearly):</h5>
-     <p> aliqua. </p><br><hr>
-     <h5 for="salary-max">Maximum salary (yearly):</h5>
-     <p> aliqua. </p><br><hr>
-     <h5 for="timeframe">Time frame:</h5>
-     <p>dolore magna aliqua.</p><br><hr>
-     <h5 for="job-description">Job Description:</h5><br>
-     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. </p>
-</div>
-<div class="upload_cv">
-<form action="/action_page.php">
-<label for="myFile">Upload CV:</label>
-  <input type="file" id="myFile" name="filename">
-  <input type="submit">
-</form>
+<?php while($row = mysqli_fetch_array($result)) {
+
+    echo "<h5 for='jobname'>Job name:</h5>
+    <p> $row[specialty] </p><br><hr>
+    <h5 for='qualifications'>Qualifications:</h5>
+    <p> 2 years</p><hr>
+    <h5 for='deadline'>Deadline:</h5>
+    <p>$row[date_posted] </p><br><hr>
+    <h5 for='salary-min'>Salary (yearly):</h5>
+    <p> $row[salary] </p><br><hr>
+    <h5 for='timeframe'>Time frame:</h5>
+    <p>$row[duration]</p><br><hr>
+    <h5 for='job-description'>Job Description:</h5><br>
+    <p> $row[job_desc]</p>";
+} ?>
+
 </div>
 
-    
+<div class="upload_cv">
+<button class="apply-button" onclick="applied()"> Apply </button>
+</div>
+
+
 </body>
 </html>

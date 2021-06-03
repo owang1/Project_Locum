@@ -1,6 +1,7 @@
 <?php
 // Initialize the session
 session_start();
+
 require_once "config.php";
 
 // Check if the user is logged in, if not then redirect him to login page
@@ -8,48 +9,6 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     header("location: login.php");
     exit;
 }
-$isEmpty = true;
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $search_input = $_POST['search'];
-    if (empty($search_input)) {
-        // echo "Specialty is empty";
-    } else {
-        $isEmpty = false;
-        echo $search_input;
-    }
-
-}
-
-if($isEmpty == true){
-    $sql = "SELECT * FROM job_posts";
-}
-else{
-    $sql = "SELECT * FROM job_posts where job_posts.specialty = ?";
-}
-
-
-if($stmt = mysqli_prepare($link, $sql)){
-    /* bind parameters for markers */
-    $param_input = $search_input;
-    $var = mysqli_stmt_bind_param($stmt, "s", $param_input);
-
-    /* execute query */
-    mysqli_stmt_execute($stmt);
-
-    $result = mysqli_stmt_get_result($stmt);
-}
-if (isset($_POST["view"])){
-
-    $job_id_clicked = $_POST['view'];
-
-    $_SESSION["job_id"] = $job_id_clicked;
-    echo $_SESSION["job_id"];
-    header("location: http://db.cse.nd.edu/cse30246/locum/locum_website/apply.php/");
-
-  }
-
-// Closing connection
-mysqli_stmt_close($stmt);
 
 ?>
 
@@ -57,7 +16,7 @@ mysqli_stmt_close($stmt);
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Welcome</title>
+    <title>Choose Account Type</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body{ font: 14px sans-serif; text-align: center; }
@@ -68,7 +27,7 @@ mysqli_stmt_close($stmt);
 }
 
 /* Style the links inside the navigation bar */
-.topnav .nav-link {
+.topnav a {
   float: left;
   color: #4f5d75;
   text-align: center;
@@ -78,28 +37,8 @@ mysqli_stmt_close($stmt);
   margin: 20px;
 }
 
-.navbar-brand{
-    margin: 0px;
-    font-size: x-large;
-    margin-top: -70px;
-    position: absolute;
-    height: fit-content;
-}
-
-.navbar{
-    box-shadow: 0px 3px 7px -5px #000000;
-}
-
-.navbar-nav{
-    justify-content: space-evenly;
-    width: 100%;
-    margin-left: -55px;
-}
-
 .btn{
-    background-color: #4f5d75 !important;
-    color: lightblue;
-    border: none;
+    background-color: #4f5d75;
 }
 
 .sign-out{
@@ -124,20 +63,20 @@ mysqli_stmt_close($stmt);
 }
 
 /* Change the color of links on hover */
-.topnav .nav-link:hover {
+.topnav a:hover {
   background-color: #ddd;
   color: black;
 }
 
 /* Add a color to the active/current link */
-.topnav .nav-link.active {
+.topnav a.active {
   background-color: #4f5d75;
   color: white;
 }
 
 .greeting{
-    height: fit-content;
-    margin-top: 23px;
+    width: 100%;
+    display: contents;
 }
 
 .card{
@@ -152,28 +91,25 @@ mysqli_stmt_close($stmt);
     overflow: scroll;
     width: fit-content;
 }
-.search-group{
-    margin: auto;
-    width: fit-content;
+
+.employ-button{
+  background-color: #E0E0E0;
+  margin: 20px;
+  width: 400px;
+  height: 100px;
+  text-align: center;
+  line-height: 75px;
+  font-size: 25px;
+  font-weight: bold;
+  box-shadow: 0px 11px 15px -8px #000000;
 }
-.search-group input{
-    width: 500px !important;
-}
-.search-button:hover{
-    background-color: #4f5d75 !important;
-    color: lightblue;
-    border: none;
+p {
+  margin-top: 50px;
+  margin-left: 500px;
+  margin-right: 500px;
 }
     </style>
 </head>
-
-<script>
-const formatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-  minimumFractionDigits: 2
-})
-</script>
 <body>
 <nav class="navbar navbar-expand-lg  topnav">
   <a class="navbar-brand" href="http://db.cse.nd.edu/cse30246/locum/locum_website/welcome.php">Locum</a>
@@ -182,6 +118,7 @@ const formatter = new Intl.NumberFormat('en-US', {
   </button>
   <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
     <div class="navbar-nav">
+      <a class="nav-item nav-link" href="../locum_website/browse-resumes.php/">Browse Resumes <span class="sr-only">(current)</span></a>
       <a class="nav-item nav-link" href="http://db.cse.nd.edu/cse30246/locum/locum_website/messages.php/">Messages</a>
       <h3 class="nav-item nav-link greeting"> Hi, <b><?php echo htmlspecialchars($_SESSION["email"]); ?></b> </h3>
       <a class="nav-item nav-link" href="http://db.cse.nd.edu/cse30246/locum/locum_website/notifications.php">Notifications</a>
@@ -190,31 +127,8 @@ const formatter = new Intl.NumberFormat('en-US', {
     </div>
   </div>
 </nav>
-
-<div>
-<h2 class="my-5">Browse Jobs</h2>
-<form class="form-inline my-lg-0 search-group" action="" method="post">
-      <input class="form-control" id="searchbar" onkeyup="search_animal()" type="text"
-        name="search" placeholder="Search jobs..">
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-</form>
-<div class="card-list">
-<form action='#'  method='post'>
-<?php while($row = mysqli_fetch_array($result)) {
-    echo "<div class='card'>
-    <h5 class='card-header'>$row[specialty]</h5>
-    <div class='card-body'>
-        <h5 class='card-title'>$row[salary]</h5>
-        <p class='card-text'>$row[job_desc]</p>
-        <button name='view' value=$row[job_id] class='btn btn-primary'>View</button>
-    </div>
-    </div>";
-} ?>
-</form>
-<?php
-
-
-  ?>
+<h2> Welcome to Locum Project </h1>
+<p> Locum Project is a web-based application for anesthesiologists at the South Bend Surgery Center. The app connects employers looking to fill short-term locum, long-term locum or permanent positions with potential employees with the right requirements. </p>
 </div>
 
 </body>
