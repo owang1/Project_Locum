@@ -67,12 +67,10 @@ if($existing_account == "employee"){
   $sql = "SELECT chat.employee, chat.id from chat where chat.employer = ?";
 }
 
-// Update people table with entered phone number
-
 if($stmt = mysqli_prepare($link, $sql)){
   /* bind parameters for markers */
   $param_email = $_SESSION["email"];
-  //echo $param_email;
+
   $var = mysqli_stmt_bind_param($stmt, "s", $param_email);
 
   /* execute query */
